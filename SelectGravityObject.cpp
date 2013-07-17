@@ -31,8 +31,8 @@ void SelectGravityObject::setWeight(int weight)
 
 void SelectGravityObject::initialize()
 {
-    _selectRadius = sqrt(_weight);
-    _squareSelectRadius = _weight;
+    _selectRadius = sqrt(_weight/2);
+    _squareSelectRadius = _weight/2;
     _selected = false;
 }
 

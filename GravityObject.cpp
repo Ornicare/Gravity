@@ -56,7 +56,7 @@ void GravityObject::calculateGravityAcceleration(const vector<GravityObject*> &u
     for (gravObjPtr = universe.begin(); gravObjPtr != universe.end(); ++gravObjPtr)
     {
         double distance = (_position->squareDistanceTo((*(*gravObjPtr)->getPosition())));
-        if ((*gravObjPtr)!=this && distance>0) //TODO fusion ?
+        if ((*gravObjPtr)!=this && distance>(*gravObjPtr)->getWeight()*(*gravObjPtr)->getWeight()) //TODO fusion ? //TODO pas de gravité à l'intérieur
         {
             acceleration = GravityObject::G*_weight*(*gravObjPtr)->getWeight()/distance;
             Vector* v = new Vector(*(*gravObjPtr)->getPosition());
