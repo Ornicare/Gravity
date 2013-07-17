@@ -12,8 +12,16 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-Wextra" />
+					<Add option="-Wall" />
 					<Add option="-g" />
 				</Compiler>
+				<Linker>
+					<Add option="-lSDL_ttf" />
+					<Add library="../../../../usr/local/lib/libSDL_gfx.a" />
+					<Add library="/usr/lib/i386-linux-gnu/libSDL_ttf.a" />
+					<Add library="/usr/lib/i386-linux-gnu/libSDL_ttf.so" />
+				</Linker>
 			</Target>
 			<Target title="Release">
 				<Option output="bin/Release/Gravity" prefix_auto="1" extension_auto="1" />
@@ -35,6 +43,12 @@
 		<Linker>
 			<Add option="`sdl-config --libs`" />
 		</Linker>
+		<Unit filename="GravityObject.cpp" />
+		<Unit filename="GravityObject.h" />
+		<Unit filename="SelectGravityObject.cpp" />
+		<Unit filename="SelectGravityObject.h" />
+		<Unit filename="Vector.cpp" />
+		<Unit filename="Vector.h" />
 		<Unit filename="cb.bmp" />
 		<Unit filename="main.cpp" />
 		<Extensions>
