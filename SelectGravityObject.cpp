@@ -61,6 +61,22 @@ void SelectGravityObject::setSelected(bool selected)
     _selected = selected;
 }
 
+void SelectGravityObject::draw(SDL_Surface* screen, const Parameters* params) const
+{
+    GravityObject::draw(screen,params);
+
+    double x = _position->getX();
+    double y = _position->getY();
+    double w = (double)_weight;
+
+
+    if (isSelected())
+    {
+        circleRGBA(screen, (x+params->screenX)/params->zoomFactor, (y+params->screenY)/params->zoomFactor, sqrt(w/2)/params->zoomFactor,(cos(SDL_GetTicks()/5000.0*2*params->pi)+1)/2*255*w/1000.0,
+            (sin(SDL_GetTicks()/(7000.0*(1+w/1000.0))*2*params->pi)+1)/2*255,(cos(SDL_GetTicks()/11000.0*2*params->pi)+1)/2*255,(cos(SDL_GetTicks()/17000.0*2*params->pi)+1)/2*255);
+    }
+}
+
 
 //TODO éviter de le refaire ?
 //void SelectGravityObject::calculateGravityAcceleration(const vector<SelectGravityObject*> &universe)

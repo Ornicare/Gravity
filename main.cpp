@@ -9,12 +9,17 @@
 #include <SDL/SDL_ttf.h>
 #include <iostream>
 #include <vector>
-#include "SelectGravityObject.h"
 #include "Vector.h"
 #include <SDL/SDL_gfxPrimitives.h>
 #include <cmath>
 #include <sstream>
 #include <SDL/SDL_rotozoom.h>
+#include "RepulsiveObject.h"
+#include "Parameters.h"
+#include "ImmovableObject.h"
+#include "SpringObject.h"
+#include <utility>
+//#include <typeinfo>
 
 using namespace std;
 
@@ -25,7 +30,6 @@ void drawSpecialLine();
 void printText(const string &prefix, const double &text, SDL_Rect &position, SDL_Color couleur, TTF_Font* police);
 void processUniverse();
 void pause();
-void draw(GravityObject* gravObj);
 void drawLine();
 int launchSDL();
 int screenW = 1920;
@@ -39,9 +43,10 @@ SelectGravityObject* lineCenter;
 double pi;
 TTF_Font *police = NULL;
 SDL_Color couleur;
-double zoomFactor = 1.0;
-double screenX = 0;
-double screenY = 0;
+Parameters* param = new Parameters();
+double* zoomFactor = &param->zoomFactor;
+double* screenX = &param->screenX;
+double* screenY = &param->screenY;
 SDL_Surface* screen = NULL;
 SDL_Surface *rectangle = NULL;
 vector<SelectGravityObject*> universe;
@@ -73,9 +78,9 @@ int main ( int argc, char** argv )
     srand(time(NULL));
 
     //temp
-//    zoomFactor = 10;
-//    screenX = 8000;
-//    screenY = 4000;
+//    *zoomFactor = 10;
+//    *screenX = 8000;
+//    *screenY = 4000;
 
 
 
@@ -109,11 +114,34 @@ int main ( int argc, char** argv )
 //        initUniverse(nb,x,y,vx/50.0, vy/50.0);
 //    }
 
+//    initUniverse(2,0,0,0, 0);
 
+//    universe.push_back(new RepulsiveObject(1000, new Vector(screenW/2+60,screenH/2), new Vector(), new Vector()));
+//    universe.push_back(new RepulsiveObject(1000, new Vector(screenW/2-60,screenH/2), new Vector(), new Vector()));
+//    universe.push_back(new SelectGravityObject(10000, new Vector(screenW/2,screenH/2+60), new Vector(), new Vector()));
+//    universe.push_back(new SelectGravityObject(10000, new Vector(screenW/2,screenH/2-60), new Vector(), new Vector()));
+//    universe.push_back(new ImmovableObject(100000, new Vector(screenW/2-120,screenH/2-120), new Vector(), new Vector()));
+
+    map<GravityObject*,vector<double> > _links;
+    vector<double> spring;
+    spring.push_back(10e-1);
+    spring.push_back(200.0);
+
+    SelectGravityObject* temp = new SelectGravityObject(1000, new Vector(screenW/2+200,screenH/2), new Vector(0,1), new Vector());
+    universe.push_back(temp);
+
+    (_links)[temp] = spring;
+
+    universe.push_back(new SpringObject(10000, new Vector(screenW/2,screenH/2), new Vector(0,-0.1), new Vector(), &_links));
+
+//    universe.push_back(new SelectGravityObject(10000, new Vector(screenW/2+300,screenH/2), new Vector(), new Vector()));
+//    universe.push_back(new SelectGravityObject(10000, new Vector(screenW/2-300,screenH/2), new Vector(), new Vector()));
+
+//    cout << (typeid (new RepulsiveObject(100000, new Vector(screenW/2,screenH/2), new Vector(), new Vector()))).name() << endl;
 //    universe.push_back(new SelectGravityObject(1000000, new Vector(0+screenW/2,0+screenH/2), new Vector(0,0), new Vector()));
 
-    for (int i=-49;i<50;i++)
-        universe.push_back(new SelectGravityObject(100, new Vector(0,0+screenH/2-10*i), new Vector(1,0), new Vector()));
+//    for (int i=-49;i<50;i++)
+//        universe.push_back(new SelectGravityObject(100, new Vector(0,0+screenH/2-10*i), new Vector(1,0), new Vector()));
 
 //    for (int i=-49;i<50;i++)
 //        universe.push_back(new SelectGravityObject(rand() % 100, new Vector(0,0+screenH/2-10*i), new Vector((rand() % 100)/100.0,0), new Vector()));
@@ -126,8 +154,10 @@ int main ( int argc, char** argv )
     vector<SelectGravityObject*>::const_iterator gravObjPtr;
     for (gravObjPtr = universe.begin(); gravObjPtr != universe.end(); ++gravObjPtr)
     {
+//        cout << (typeid (*gravObjPtr)).name() << endl;
         (*gravObjPtr)->setSelected(true);
         convertUniverse.push_back(dynamic_cast<GravityObject*> (*gravObjPtr));
+
     }
 
 
@@ -184,16 +214,16 @@ void pause()
                     }
                     break;
                 case SDLK_UP:
-                    screenY+=zoomFactor*10;
+                    *screenY+= *zoomFactor*10;
                     break;
                 case SDLK_DOWN:
-                    screenY-=zoomFactor*10;
+                    *screenY-= *zoomFactor*10;
                     break;
                 case SDLK_LEFT:
-                    screenX-=zoomFactor*10;
+                    *screenX-= *zoomFactor*10;
                     break;
                 case SDLK_RIGHT:
-                    screenX+=zoomFactor*10;
+                    *screenX+= *zoomFactor*10;
                     break;
                 }
                 break;
@@ -208,7 +238,7 @@ void pause()
                     for (gravObjPtr = universe.begin(); gravObjPtr != universe.end(); ++gravObjPtr)
                     {
                         (*gravObjPtr)->setSelected(false);
-                        if ((*gravObjPtr)->isInZone(event.button.x*zoomFactor-screenX, event.button.y*zoomFactor-screenY))
+                        if ((*gravObjPtr)->isInZone(event.button.x* (*zoomFactor)-*screenX, event.button.y* (*zoomFactor)-*screenY))
                         {
                             if(!isAnyObjSelected) isAnyObjSelected = true;
                             lineCenter = *gravObjPtr;
@@ -217,7 +247,7 @@ void pause()
                         {
                             if (!isAnyObjSelected)
                             {
-                                lineCenter->addSpeed((Vector(event.button.x*zoomFactor-screenX, event.button.y*zoomFactor-screenY)-*(lineCenter)->getPosition()).normalize().multiply(Vector(event.button.x*zoomFactor-screenX, event.button.y*zoomFactor-screenY).distanceTo(*(lineCenter)->getPosition())/sqrt(screenH*screenH+screenW*screenW)));
+                                lineCenter->addSpeed((Vector(event.button.x* (*zoomFactor)-*screenX, event.button.y* (*zoomFactor)-*screenY)-*(lineCenter)->getPosition()).normalize().multiply(Vector(event.button.x* (*zoomFactor)-*screenX, event.button.y* (*zoomFactor)-*screenY).distanceTo(*(lineCenter)->getPosition())/sqrt(screenH*screenH+screenW*screenW)));
                             }
                         }
 
@@ -239,22 +269,22 @@ void pause()
                 }
                 else if (event.button.button == SDL_BUTTON_WHEELUP)
                 {
-                    screenX = (event.button.x*zoomFactor-screenX)/2;
-                    screenY = (event.button.y*zoomFactor-screenY)/2;
-                    zoomFactor = max(1.0,zoomFactor-1);
+                    *screenX = (event.button.x* (*zoomFactor)-*screenX)/2;
+                    *screenY = (event.button.y* (*zoomFactor)-*screenY)/2;
+                    *zoomFactor = max(1.0,*zoomFactor-1);
                 }
                 else if (event.button.button == SDL_BUTTON_WHEELDOWN)
                 {
-                    screenX = (event.button.x*zoomFactor-screenX)/2;
-                    screenY = (event.button.y*zoomFactor-screenY)/2;
-                    zoomFactor++;
+                    *screenX = (event.button.x* (*zoomFactor)-*screenX)/2;
+                    *screenY = (event.button.y* (*zoomFactor)-*screenY)/2;
+                    (*zoomFactor)++;
                 }
                 break;
             }
             case SDL_MOUSEMOTION:
             {
-                linePosition.x = event.motion.x*zoomFactor-screenX;
-                linePosition.y = event.motion.y*zoomFactor-screenY;
+                linePosition.x = event.motion.x* (*zoomFactor)-*screenX;
+                linePosition.y = event.motion.y* (*zoomFactor)-*screenY;
                 break;
             }
             }
@@ -311,39 +341,6 @@ void pause()
     }
 }
 
-void draw(SelectGravityObject* gravObj)
-{
-//    Uint32 color = SDL_MapRGB(screen->format, 255*gravObj->getWeight()/1000.0, 255*(1-gravObj->getWeight()/1000.0) , 0);
-//    Uint32 color = SDL_MapRGB(screen->format,255,255 , 0);
-
-    double x = gravObj->getPosition()->getX();
-    double y = gravObj->getPosition()->getY();
-    double w = gravObj->getWeight();
-
-//    rectangle = SDL_CreateRGBSurface(SDL_HWSURFACE, w, w, 32, 0, 0, 0, 0);
-//    SDL_FillRect(rectangle, NULL, color);
-//
-//    SDL_Rect position;
-//
-//    position.x = x-w/2+screenW/2;
-//    position.y = y-w/2+screenH/2;
-//
-//    SDL_BlitSurface(rectangle, NULL, screen, &position);
-
-//    lineColor(screen, 0, 0, 1000, 1000, color);
-
-    filledCircleRGBA(screen, (x+screenX)/zoomFactor, (y+screenY)/zoomFactor, sqrt(w/2)/zoomFactor,50,50,50,128);
-
-    if (gravObj->isSelected())
-    {
-//        circleRGBA(screen, x, y, sqrt(w/2),255*gravObj->getWeight()/1000.0,255*(1-gravObj->getWeight()/1000.0),(cos(SDL_GetTicks()/10000.0*2*pi)+1)/2*255,128);
-        circleRGBA(screen, (x+screenX)/zoomFactor, (y+screenY)/zoomFactor, sqrt(w/2)/zoomFactor,(cos(SDL_GetTicks()/5000.0*2*pi)+1)/2*255*gravObj->getWeight()/1000.0,(sin(SDL_GetTicks()/(7000.0*(1+gravObj->getWeight()/1000.0))*2*pi)+1)/2*255,(cos(SDL_GetTicks()/11000.0*2*pi)+1)/2*255,(cos(SDL_GetTicks()/17000.0*2*pi)+1)/2*255);
-    }
-    //SDL_BlitSurface(line, NULL, screen, &position);
-//    cout << x << endl;
-
-}
-
 void processUniverse()
 {
     vector<SelectGravityObject*>::const_iterator gravObjPtr;
@@ -358,19 +355,20 @@ void processUniverse()
 //        cout << *v << endl;
         (*gravObjPtr)->calculateSpeed();
         (*gravObjPtr)->calculatePosition();
-        draw(*gravObjPtr);
+//        draw(*gravObjPtr);
+        (*gravObjPtr)->draw(screen, param);
     }
 
     SDL_Rect pos;
     pos.x = 0;
     pos.y = 0;
-    printText("Zoom=", zoomFactor, pos, couleur, police);
+    printText("Zoom=", *zoomFactor, pos, couleur, police);
 
     pos.y+=30;
-    printText("ScreenX=", screenX, pos, couleur, police);
+    printText("ScreenX=", *screenX, pos, couleur, police);
 
     pos.y+=30;
-    printText("ScreenY=", screenY, pos, couleur, police);
+    printText("ScreenY=", *screenY, pos, couleur, police);
 
 }
 
@@ -429,8 +427,8 @@ void drawLine()
 
         Vector* t = new Vector(linePosition.x,linePosition.y);
         SDL_Rect linePosition2;
-        linePosition2.x = (linePosition.x+screenX)/zoomFactor;
-        linePosition2.y = (linePosition.y+screenY)/zoomFactor;
+        linePosition2.x = (linePosition.x+*screenX)/ *zoomFactor;
+        linePosition2.y = (linePosition.y+*screenY)/ *zoomFactor;
         std::ostringstream strs;
         strs << lineCenter->getPosition()->distanceTo(*t);
         std::string str = strs.str();
@@ -444,8 +442,8 @@ void drawLine()
         SDL_Rect pos;
         pos.x = lineCenter->getPosition()->getX()+lineCenter->getSelectRadius();
         pos.y = lineCenter->getPosition()->getY()-lineCenter->getSelectRadius();
-        pos.x = (pos.x+screenX)/zoomFactor;
-        pos.y = (pos.y+screenY)/zoomFactor;
+        pos.x = (pos.x+*screenX)/ *zoomFactor;
+        pos.y = (pos.y+*screenY)/ *zoomFactor;
         printText("w=",lineCenter->getWeight(), pos, couleur, police);
 
         pos.y +=30;
@@ -501,10 +499,10 @@ void drawSpecialLine()
 void line(float x1, float y1, float x2, float y2)
 {
     //Utilisation du zoom
-    x1 = (x1+screenX)/zoomFactor;
-    x2 = (x2+screenX)/zoomFactor;
-    y1 = (y1+screenY)/zoomFactor;
-    y2 = (y2+screenY)/zoomFactor;
+    x1 = (x1+*screenX)/ *zoomFactor;
+    x2 = (x2+*screenX)/ *zoomFactor;
+    y1 = (y1+*screenY)/ *zoomFactor;
+    y2 = (y2+*screenY)/ *zoomFactor;
     // Bresenham's line algorithm
     const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
     bool reversePercent = (x2-x1)+(y2-y1)>0;

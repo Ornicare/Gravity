@@ -5,6 +5,21 @@
 #include <string>
 #include <vector>
 #include "Vector.h"
+#include <SDL/SDL.h>
+#include <SDL/SDL_gfxPrimitives.h>
+#include "Parameters.h"
+
+#include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
+#include <SDL/SDL_ttf.h>
+#include <iostream>
+#include <vector>
+#include "Vector.h"
+#include <SDL/SDL_gfxPrimitives.h>
+#include <cmath>
+#include <sstream>
+#include <SDL/SDL_rotozoom.h>
+#include "Parameters.h"
 
 class GravityObject
 {
@@ -26,6 +41,10 @@ class GravityObject
         virtual void calculateGravityAcceleration(const std::vector<GravityObject*> &universe);
         virtual void calculateSpeed();
         virtual void calculatePosition();
+
+        virtual Vector* getInfluenceFor(const GravityObject* gravObj);
+
+        virtual void draw(SDL_Surface* screen, const Parameters* params) const;
 
         static const double G = 10e-5;
 

@@ -47,33 +47,56 @@ Vector* GravityObject::getAcceleration() const
     return _acceleration;
 }
 
+/**
+ * Normal gravitation (null if we are in the object)
+ */
+Vector* GravityObject::getInfluenceFor(const GravityObject* gravObj)
+{
+    double distance = (_position->squareDistanceTo(*(gravObj->getPosition())));
+    double acceleration;
+    if(distance<_weight/2) return new Vector();
+
+    acceleration = GravityObject::G*_weight*gravObj->getWeight()/distance;
+    Vector* v = new Vector(*(gravObj)->getPosition());
+
+    //NOTICE memory leak !!!!! *t+=(*_position-*v);
+
+    Vector* t = new Vector(*_position);
+    *t-=*v;
+    delete v;
+    t->multiply(acceleration);
+    return t;
+}
+
 void GravityObject::calculateGravityAcceleration(const vector<GravityObject*> &universe)
 {
-    double acceleration;
+
     _temporaryAcceleration = new Vector();
 
     vector<GravityObject*>::const_iterator gravObjPtr;
     for (gravObjPtr = universe.begin(); gravObjPtr != universe.end(); ++gravObjPtr)
     {
-        double distance = (_position->squareDistanceTo((*(*gravObjPtr)->getPosition())));
-        if ((*gravObjPtr)!=this && distance>(*gravObjPtr)->getWeight()*(*gravObjPtr)->getWeight()) //TODO fusion ? //TODO pas de gravité à l'intérieur
+        if ((*gravObjPtr)!=this) //TODO fusion ? //TODO pas de gravité à l'intérieur
         {
-            acceleration = GravityObject::G*_weight*(*gravObjPtr)->getWeight()/distance;
-            Vector* v = new Vector(*(*gravObjPtr)->getPosition());
-
-            //NOTICE memory leak !!!!! *t+=(*_position-*v);
-
-
-            Vector* t = new Vector(*_position);
-            *t-=*v;
-//            *t+=(*_position-*v);
-//            t->setX(_position->getX()-v->getX());
-//            t->setY(_position->getY()-v->getY());
-
-            t->multiply(-acceleration);
+//            acceleration = GravityObject::G*_weight*(*gravObjPtr)->getWeight()/distance;
+//            Vector* v = new Vector(*(*gravObjPtr)->getPosition());
+//
+//            //NOTICE memory leak !!!!! *t+=(*_position-*v);
+//
+//
+//            Vector* t = new Vector(*_position);
+//            *t-=*v;
+////            *t+=(*_position-*v);
+////            t->setX(_position->getX()-v->getX());
+////            t->setY(_position->getY()-v->getY());
+//
+//            t->multiply(-acceleration);
+//            *_temporaryAcceleration+=*t;
+//            delete t;
+//            delete v;
+            Vector* t = (*gravObjPtr)->getInfluenceFor(this);
             *_temporaryAcceleration+=*t;
             delete t;
-            delete v;
         }
     }
 
@@ -99,4 +122,15 @@ void GravityObject::calculateSpeed()
 void GravityObject::calculatePosition()
 {
     *_position+=*_speed;
+}
+
+void GravityObject::draw(SDL_Surface* screen, const Parameters* params) const
+{
+    double x = _position->getX();
+    double y = _position->getY();
+    double w = (double)_weight;
+
+//    cout << (x+params->screenX)/(params->zoomFactor) << " " << y << " " << _weight << endl;
+
+    filledCircleRGBA(screen, (x+params->screenX)/(params->zoomFactor), (y+params->screenY)/(params->zoomFactor), sqrt(w/2)/(params->zoomFactor),50,50,50,128);
 }

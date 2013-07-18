@@ -76,3 +76,90 @@
 	"Vector.h"
 	<cmath>
 
+1374163320 source:/home/antoine/SyncFiles/Git/Gravity/Gravity/main.cpp
+	<cstdlib>
+	<stdlib.h>
+	<SDL/SDL.h>
+	<SDL/SDL_image.h>
+	<SDL/SDL_ttf.h>
+	<iostream>
+	<vector>
+	"Vector.h"
+	<SDL/SDL_gfxPrimitives.h>
+	<cmath>
+	<sstream>
+	<SDL/SDL_rotozoom.h>
+	"RepulsiveObject.h"
+	"Parameters.h"
+	"ImmovableObject.h"
+	"SpringObject.h"
+	<utility>
+
+1374156826 /home/antoine/SyncFiles/Git/Gravity/Gravity/SelectGravityObject.h
+	"GravityObject.h"
+
+1374157979 /home/antoine/SyncFiles/Git/Gravity/Gravity/GravityObject.h
+	<iostream>
+	<string>
+	<vector>
+	"Vector.h"
+	<SDL/SDL.h>
+	<SDL/SDL_gfxPrimitives.h>
+	"Parameters.h"
+	<SDL/SDL.h>
+	<SDL/SDL_image.h>
+	<SDL/SDL_ttf.h>
+	<iostream>
+	<vector>
+	"Vector.h"
+	<SDL/SDL_gfxPrimitives.h>
+	<cmath>
+	<sstream>
+	<SDL/SDL_rotozoom.h>
+	"Parameters.h"
+
+1374146978 /home/antoine/SyncFiles/Git/Gravity/Gravity/Vector.h
+	<iostream>
+	<string>
+
+1374158860 source:/home/antoine/SyncFiles/Git/Gravity/Gravity/SelectGravityObject.cpp
+	<cmath>
+	"SelectGravityObject.h"
+
+1374146978 source:/home/antoine/SyncFiles/Git/Gravity/Gravity/Vector.cpp
+	"Vector.h"
+	<cmath>
+
+1374158867 source:/home/antoine/SyncFiles/Git/Gravity/Gravity/GravityObject.cpp
+	"GravityObject.h"
+
+1374152359 source:/home/antoine/SyncFiles/Git/Gravity/Gravity/RepulsiveObject.cpp
+	"RepulsiveObject.h"
+
+1374156850 /home/antoine/SyncFiles/Git/Gravity/Gravity/RepulsiveObject.h
+	"SelectGravityObject.h"
+
+1374157448 /home/antoine/SyncFiles/Git/Gravity/Gravity/Parameters.h
+	<cmath>
+
+1374159011 source:/home/antoine/SyncFiles/Git/Gravity/Gravity/ImmovableObject.cpp
+	"ImmovableObject.h"
+
+1374156887 /home/antoine/SyncFiles/Git/Gravity/Gravity/ImmovableObject.h
+	"SelectGravityObject.h"
+
+1374156620 /home/antoine/SyncFiles/Git/Gravity/Gravity/ConstantsParameters.h
+
+1374156623 source:/home/antoine/SyncFiles/Git/Gravity/Gravity/ConstantsParameters.cpp
+	"ConstantsParameters.h"
+
+1374157093 source:/home/antoine/SyncFiles/Git/Gravity/Gravity/Parameters.cpp
+	"Parameters.h"
+
+1374164298 source:/home/antoine/SyncFiles/Git/Gravity/Gravity/SpringObject.cpp
+	"SpringObject.h"
+
+1374161458 /home/antoine/SyncFiles/Git/Gravity/Gravity/SpringObject.h
+	"SelectGravityObject.h"
+	<map>
+

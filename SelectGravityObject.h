@@ -1,3 +1,6 @@
+#ifndef S_GRAV_OBJ
+#define S_GRAV_OBJ
+
 #include "GravityObject.h"
 
 class SelectGravityObject : public GravityObject
@@ -15,6 +18,8 @@ class SelectGravityObject : public GravityObject
         virtual bool isSelected() const;
         virtual void setSelected(bool selected);
 
+        virtual void draw(SDL_Surface* screen, const Parameters* params) const;
+
 //        virtual void calculateGravityAcceleration(const std::vector<SelectGravityObject*> &universe);
 
     protected:
@@ -25,3 +30,4 @@ class SelectGravityObject : public GravityObject
     private:
         void initialize();
 };
+#endif
